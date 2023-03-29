@@ -1,0 +1,17 @@
+
+Simple leak detector
+* detect memory leaks with malloc et al.
+* show trace to the leak source
+* check if memory is deallocated in different module than allocated
+* expose interface to hook in which memory belongs to smart pointer
+* analyse data to see if there are cycles in the smart pointers and report those
+* simple analysis of allocation source and allocation patterns
+* as little impact on performance as possible
+
+Technical:
+* Shared object preload on linux
+* dll to link against on windows (provide header with lib pragmas for msvc)
+* first output in plain text only
+* hook interface:
+  * add_pointer_owner(owner_address, containee_address)
+  * remove_pointer_owner(owner_address, containee_address)
