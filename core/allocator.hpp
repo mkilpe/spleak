@@ -5,7 +5,7 @@
 
 extern "C" {
 void* sp_real_alloc(std::size_t);
-void* sp_real_dealloc(void*, std::size_t);
+void sp_real_dealloc(void*, std::size_t);
 }
 
 namespace securepath::spleak {

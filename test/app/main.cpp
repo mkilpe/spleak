@@ -1,8 +1,11 @@
 
 #include <iostream>
+#include <cstdlib>
 
 int main() {
-	void* test = malloc(4);
+	void* test = std::malloc(4);
 	std::cout << "allocated address " << test << std::endl;
-	free(test);
+	std::free(test);
+
+	[[maybe_unused]] void* unfreed = std::malloc(12);
 }

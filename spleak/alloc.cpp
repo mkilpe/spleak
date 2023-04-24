@@ -72,35 +72,45 @@ static Func* resolve(char const* name) {
 
 extern "C" {
 
-void* sp_real_alloc(std::size_t size) {
-	return resolve<decltype(malloc)>("malloc")(size);
-}
-
-void* sp_real_dealloc(void*, std::size_t) {
-	resolve<decltype(free)>("free")(p);
-}
-
 SPLEAK_EXPORT void* malloc(size_t size) {
-    write(1, "malloc\n", 7);
     auto r = resolve<decltype(malloc)>("malloc")(size);
+    securepath::print("malloc {}", r);
     memmap().add(r, size);
 	return r;
 }
 
 SPLEAK_EXPORT void* calloc(size_t size, size_t n) {
-    write(1, "calloc\n", 7);
+    securepath::print("calloc");
 	return resolve<decltype(calloc)>("calloc")(size, n);
 }
 
 SPLEAK_EXPORT void* realloc(void* p, size_t newsize) {
-    write(1, "realloc\n", 8);
+    securepath::print("realloc");
 	return resolve<decltype(realloc)>("realloc")(p, newsize);
 }
 
 SPLEAK_EXPORT void free(void* p) {
-    write(1, "free\n", 5);
+    securepath::print("free {}", p);
     memmap().remove(p);
 	return resolve<decltype(free)>("free")(p);
+}
+
+SPLEAK_EXPORT void* sp_real_alloc(std::size_t size) {
+    return resolve<decltype(malloc)>("malloc")(size);
+}
+
+SPLEAK_EXPORT void sp_real_dealloc(void* p, std::size_t) {
+    resolve<decltype(free)>("free")(p);
+}
+
+void __attribute__ ((constructor)) spleak_init() {
+
+}
+
+void __attribute__ ((destructor)) spleak_fini() {
+    for(auto&& m : memmap()) {
+        securepath::print("unreleased memory: {} size={}", m.second.address, m.second.size);
+    }
 }
 
 }

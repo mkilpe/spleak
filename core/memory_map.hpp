@@ -6,7 +6,7 @@ namespace securepath::spleak {
 
 class memory_map {
 public:
-	bool add(void const* address, std::size_t size);
+	bool add(void const* address, std::uint64_t size);
 	bool remove(void const* address);
 
 	auto begin() const {
@@ -20,7 +20,7 @@ public:
 private:
 	struct memory_block {
 		void const* address;
-		std::size_t size{};
+		std::uint64_t size{};
 	};
 private:
 	mutable mutex mutex_;
