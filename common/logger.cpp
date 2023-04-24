@@ -1,22 +1,24 @@
 
 #include "logger.hpp"
 
-#include <utility>
-#include <stdio.h>
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 namespace securepath {
 
-void stdout_logger::do_log_line(logger::type, std::string const& s, std::source_location&&) {
-	std::puts(s.c_str());
-}
-
-session_logger::session_logger(logger& l, std::string tag)
-: log_(l)
-, tag_(std::move(tag))
-{}
-
-void session_logger::do_log_line(logger::type t, std::string const& s, std::source_location&& loc) {
-	log_.log_line(t, tag_ + s, std::move(loc));
+void print(std::string_view str) {
+#ifdef _WIN32
+    HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if(handle != INVALID_HANDLE_VALUE) {
+        DWORD count = 0;
+        WriteConsole(handle, str, str.size(), &count, NULL);
+    }
+#else
+	write(1, str.data(), str.size());
+#endif
 }
 
 }

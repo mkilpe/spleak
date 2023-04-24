@@ -1,17 +1,22 @@
 
 #include "config.hpp"
+#include <common/logger.h>
 
-#ifdef _MSC_VER
+#ifdef _WIN32
+//#ifdef _MSC_VER
+
+#include <malloc.h>
 
 #ifdef _DEBUG
-#include <crt.h>
-#else
 #include <crtdbg.h>
+#else
+#include <windows.h>
 #endif
 
 extern "C" {
 
 SPLEAK_EXPORT void* malloc(size_t size) {
+    print("malloc");
 #ifdef _DEBUG
     return _malloc_dbg(size, _NORMAL_BLOCK, nullptr, 0);
 #else
@@ -43,6 +48,8 @@ SPLEAK_EXPORT void free(void* p) {
 #endif
 }
 
+}
+
 #else
 
 #ifndef _GNU_SOURCE
@@ -50,6 +57,7 @@ SPLEAK_EXPORT void free(void* p) {
 #endif
 
 #include <dlfcn.h>
+#include <unistd.h>
 
 template<typename Func>
 static Func* resolve(char const* name) {
@@ -59,18 +67,22 @@ static Func* resolve(char const* name) {
 extern "C" {
 
 SPLEAK_EXPORT void* malloc(size_t size) {
+    write(1, "malloc\n", 7);
 	return resolve<decltype(malloc)>("malloc")(size);
 }
 
 SPLEAK_EXPORT void* calloc(size_t size, size_t n) {
+    write(1, "calloc\n", 7);
 	return resolve<decltype(malloc)>("calloc")(n);
 }
 
 SPLEAK_EXPORT void* realloc(void* p, size_t newsize) {
+    write(1, "realloc\n", 8);
 	return resolve<decltype(realloc)>("realloc")(p, newsize);
 }
 
 SPLEAK_EXPORT void free(void* p) {
+    write(1, "free\n", 5);
 	return resolve<decltype(free)>("free")(p);
 }
 
