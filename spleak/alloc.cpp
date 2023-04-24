@@ -1,6 +1,12 @@
 
 #include "config.hpp"
-#include <common/logger.h>
+#include <common/logger.hpp>
+#include <core/memory_map.hpp>
+
+static securepath::spleak::memory_map& memmap() {
+	static securepath::spleak::memory_map map;
+	return map;
+}
 
 #ifdef _WIN32
 //#ifdef _MSC_VER
@@ -66,14 +72,24 @@ static Func* resolve(char const* name) {
 
 extern "C" {
 
+void* sp_real_alloc(std::size_t size) {
+	return resolve<decltype(malloc)>("malloc")(size);
+}
+
+void* sp_real_dealloc(void*, std::size_t) {
+	resolve<decltype(free)>("free")(p);
+}
+
 SPLEAK_EXPORT void* malloc(size_t size) {
     write(1, "malloc\n", 7);
-	return resolve<decltype(malloc)>("malloc")(size);
+    auto r = resolve<decltype(malloc)>("malloc")(size);
+    memmap().add(r, size);
+	return r;
 }
 
 SPLEAK_EXPORT void* calloc(size_t size, size_t n) {
     write(1, "calloc\n", 7);
-	return resolve<decltype(malloc)>("calloc")(n);
+	return resolve<decltype(calloc)>("calloc")(size, n);
 }
 
 SPLEAK_EXPORT void* realloc(void* p, size_t newsize) {
@@ -83,6 +99,7 @@ SPLEAK_EXPORT void* realloc(void* p, size_t newsize) {
 
 SPLEAK_EXPORT void free(void* p) {
     write(1, "free\n", 5);
+    memmap().remove(p);
 	return resolve<decltype(free)>("free")(p);
 }
 

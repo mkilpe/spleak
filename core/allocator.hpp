@@ -1,13 +1,14 @@
 #pragma once
 
 #include <cstddef>
+#include <exception>
 
 extern "C" {
 void* sp_real_alloc(std::size_t);
 void* sp_real_dealloc(void*, std::size_t);
 }
 
-namespace securepath {
+namespace securepath::spleak {
 
 template <class T>
 struct allocator {
@@ -23,7 +24,7 @@ struct allocator {
     {}
 
 	[[nodiscard]] T* allocate(std::size_t n) {
-		auto p = (T*)sp_real_alloc(s * sizeof(T));
+		auto p = (T*)sp_real_alloc(n * sizeof(T));
         if(!p) {
             throw std::bad_alloc();
         }
