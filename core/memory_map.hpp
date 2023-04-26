@@ -1,6 +1,8 @@
 #pragma once
 
 #include "types.hpp"
+#include "trace.hpp"
+#include <thread>
 
 namespace securepath::spleak {
 
@@ -21,9 +23,10 @@ private:
 	struct memory_block {
 		void const* address;
 		std::uint64_t size{};
+		std::thread::id thread = std::this_thread::get_id();
+		trace strace;
 	};
 private:
-	mutable mutex mutex_;
 	unordered_map<void const*, memory_block> mem_;
 };
 

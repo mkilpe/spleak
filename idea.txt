@@ -19,3 +19,4 @@ Technical:
   random notes:
   * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explictly include the CRT)
    ** try EnumProcessModules getting all modules to find the crt and load malloc?
+  * alloc to add hook to try interpret memory, what it contains
