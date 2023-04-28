@@ -1,4 +1,5 @@
 
+#include "alloc.hpp"
 #include "config.hpp"
 #include "context.hpp"
 
@@ -19,7 +20,7 @@ namespace securepath::spleak {
 
 extern "C" {
 
-SPLEAK_EXPORT void* malloc(size_t size) {
+SPLEAK_EXPORT void* malloc(std::size_t size) {
     print("malloc");
 #ifdef _DEBUG
     return _malloc_dbg(size, _NORMAL_BLOCK, nullptr, 0);
@@ -28,7 +29,7 @@ SPLEAK_EXPORT void* malloc(size_t size) {
 #endif
 }
 
-SPLEAK_EXPORT void* calloc(size_t num, size_t size) {
+SPLEAK_EXPORT void* calloc(std::size_t num, std::size_t size) {
 #ifdef _DEBUG
     return _calloc_dbg(num, size, _NORMAL_BLOCK, nullptr, 0);
 #else
@@ -36,7 +37,7 @@ SPLEAK_EXPORT void* calloc(size_t num, size_t size) {
 #endif
 }
 
-SPLEAK_EXPORT void* realloc(void* p, size_t newsize) {
+SPLEAK_EXPORT void* realloc(void* p, std::size_t newsize) {
 #ifdef _DEBUG
     return _realloc_dbg(p, newsize, _NORMAL_BLOCK, nullptr, 0);
 #else
