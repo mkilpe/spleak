@@ -2,9 +2,11 @@
 
 #include "allocator.hpp"
 
-#include <unordered_map>
-#include <string>
 #include <mutex>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <vector>
 
 // declare std types using our allocator
 
@@ -17,6 +19,9 @@ template<typename Key,
 		typename Hash = std::hash<Key>,
     	typename KeyEqual = std::equal_to<Key>>
 using unordered_map = std::unordered_map<Key, Value, Hash, KeyEqual, allocator<std::pair<const Key, Value>>>;
+
+template<typename Type>
+using vector = std::vector<Type, allocator<Type>>;
 
 using mutex = std::mutex;
 

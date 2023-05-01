@@ -1,6 +1,7 @@
 #pragma once
 
 #include "settings.hpp"
+#include <core/logger.hpp>
 
 #include <core/memory_map.hpp>
 
@@ -18,6 +19,7 @@ public:
 
 private:
 	mutable mutex mutex_;
+	console_logger log_;
 	settings settings_;
 	memory_map map_;
 };

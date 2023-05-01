@@ -1,5 +1,6 @@
 #pragma once
 
+#include "logger.hpp"
 #include "types.hpp"
 
 namespace securepath::spleak {
@@ -9,7 +10,7 @@ public:
 	static constexpr std::size_t trace_depth = 50;
 
 	trace();
-	void print_trace() const;
+	void print_trace(logger&) const;
 
 private:
 	void* trace_[trace_depth];

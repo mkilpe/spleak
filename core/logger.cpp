@@ -7,9 +7,9 @@
 #include <unistd.h>
 #endif
 
-namespace securepath {
+namespace securepath::spleak {
 
-void print_impl(std::string_view str) {
+void print(std::string_view str) {
 #ifdef _WIN32
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if(handle != INVALID_HANDLE_VALUE) {
@@ -21,7 +21,11 @@ void print_impl(std::string_view str) {
 #endif
 }
 
-void print_impl(void const* p) {
+void output(logger& l, std::string_view s) {
+	l.add_to_buffer(s);
+}
+
+void output(logger& l, void const* p) {
 	char const hex[] = "0123456789abcdef";
 	static_assert(sizeof(p) == 8);
 	char arr[18] = {};
@@ -34,10 +38,10 @@ void print_impl(void const* p) {
 	} while(i != 16 && n);
 	arr[18-i-1]	= 'x';
 	arr[18-i-2]	= '0';
-	print_impl(std::string_view(arr+18-i-2, arr+18));
+	l.add_to_buffer(std::string_view(arr+18-i-2, arr+18));
 }
 
-void print_impl(std::uint64_t v) {
+void output(logger& l, std::uint64_t v) {
 	char arr[19] = {};
 	int i = 0;
 	do {
@@ -45,7 +49,7 @@ void print_impl(std::uint64_t v) {
 		v /= 10;
 		++i;
 	} while(i != 19 && v);
-	print_impl(std::string_view(arr+19-i, arr+19));
+	l.add_to_buffer(std::string_view(arr+19-i, arr+19));
 }
 
 }

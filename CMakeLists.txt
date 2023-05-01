@@ -30,7 +30,6 @@ set(CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS} ${CXX_LOCAL_FLAGS} -Wall -Wreturn-
 
 # actual projects
 add_subdirectory(include/spleak)
-add_subdirectory(common)
 add_subdirectory(core)
 add_subdirectory(spleak)
 add_subdirectory(test)

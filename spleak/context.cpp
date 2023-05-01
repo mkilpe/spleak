@@ -1,6 +1,5 @@
 
 #include "context.hpp"
-#include <common/logger.hpp>
 
 namespace securepath::spleak {
 
@@ -22,8 +21,8 @@ void context::remove_alloc_mem(void const* address) {
 void context::report_on_shutdown() {
 	unique_lock lock{mutex_};
 	for(auto&& m : map_) {
-        securepath::print("unreleased memory: {} size={}", m.second.address, m.second.size);
-        m.second.strace.print_trace();
+        log_.log("unreleased memory: {} size={}", m.second.address, m.second.size);
+        m.second.strace.print_trace(log_);
     }
 }
 

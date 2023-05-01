@@ -1,8 +1,9 @@
 #include "trace.hpp"
 
-#include <common/logger.hpp>
-
+#ifdef _WIN32
+#else
 #include <execinfo.h>
+#endif
 
 namespace securepath::spleak {
 
@@ -11,11 +12,11 @@ trace::trace()
 	size_ = backtrace(trace_, trace_depth);
 }
 
-void trace::print_trace() const {
+void trace::print_trace(logger& l) const {
 	if(char** strings = backtrace_symbols(trace_, size_)) {
-		print("Obtained {} stack frames.", size_);
+		l.log("Obtained {} stack frames.", size_);
 		for(std::size_t i = 0; i != size_; ++i) {
-			print(strings[i]);
+			l.log(strings[i]);
 		}
 		free(strings);
 	}
