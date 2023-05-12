@@ -7,6 +7,16 @@
 
 namespace securepath::spleak {
 
+#ifdef _WIN32
+trace::trace()
+{
+}
+
+void trace::print_trace(logger& l) const {
+}
+
+#else
+
 trace::trace()
 {
 	size_ = backtrace(trace_, trace_depth);
@@ -21,5 +31,5 @@ void trace::print_trace(logger& l) const {
 		free(strings);
 	}
 }
-
+#endif
 }

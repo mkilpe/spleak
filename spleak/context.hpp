@@ -17,9 +17,14 @@ public:
 
 	void report_on_shutdown();
 
+	template<typename... Args>
+	void log(std::string_view format, Args const&... args) const {
+		log_.log(format, args...);
+	}
+
 private:
 	mutable mutex mutex_;
-	console_logger log_;
+	mutable console_logger log_;
 	settings settings_;
 	memory_map map_;
 };

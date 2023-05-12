@@ -32,6 +32,8 @@ void* calloc_op(void* r, std::size_t size, std::size_t n) {
 
 void* realloc_op(void* r, void* p, std::size_t newsize) {
     if(scoped_internal_op _{}) {
+        context::instance().remove_alloc_mem(p);
+        context::instance().add_alloc_mem(r, newsize);
     }
     return r;
 }

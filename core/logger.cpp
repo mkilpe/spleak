@@ -14,7 +14,7 @@ void print(std::string_view str) {
     HANDLE handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if(handle != INVALID_HANDLE_VALUE) {
         DWORD count = 0;
-        WriteConsole(handle, str, str.size(), &count, NULL);
+        WriteConsole(handle, str.data(), str.size(), &count, NULL);
     }
 #else
 	write(1, str.data(), str.size());
