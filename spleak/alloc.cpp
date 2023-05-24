@@ -7,14 +7,17 @@
 
 namespace securepath::spleak {
 
-thread_local std::atomic_flag internal_op{};
+std::atomic_flag& iop() {
+    thread_local std::atomic_flag internal_op{};
+    return internal_op;
+}
 
 bool start_internal_op() {
-    return !internal_op.test_and_set();
+    return !iop().test_and_set();
 }
 
 void end_internal_op() {
-    internal_op.clear();
+    iop().clear();
 }
 
 void* malloc_op(void* r, std::size_t size) {

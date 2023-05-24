@@ -5,11 +5,24 @@
 
 //#ifdef _MSC_VER
 
+#include <cstring>
+
 #include <windows.h>
 #include <psapi.h>
 
 namespace securepath::spleak {
 namespace {
+
+    struct dll_init_data {
+        std::atomic_flag flag{};
+        static_alloc<4096> alloc;
+    };
+
+    dll_init_data& dll_init() {
+        static dll_init_data init;
+        return init;
+    }
+
     struct resolved_functions {
         void* (*malloc)(std::size_t size);
         void* (*calloc)(std::size_t num, std::size_t size);
@@ -48,13 +61,16 @@ namespace {
         if(EnumProcessModules(process, mods, sizeof(mods), &mod_handle_bytes)) {
             for(std::size_t i = 0; i < (mod_handle_bytes / sizeof(HMODULE)); ++i) {
                 if(GetModuleFileNameA(mods[i], name, sizeof(name))) {
-                    std::string s(name);
-                    //MSVCRXXX.dll
-                    if(s.substr(s.find_last_of('\\')) == "msvcrt.dll") { //other names?
-                        return mods[i];
+                    std::string_view s(name, std::strlen(name));
+                    context::instance().log("-- {}", name);
+                    auto p = s.find_last_of('\\');
+                    if(p != std::string_view::npos) {
+                        if(s.substr(p+1) == "msvcrt.dll") {
+                            return mods[i];
+                        }
                     }
 
-                    context::instance().log("{}", s.substr(s.find_last_of('\\')));
+
                 }
             }
         }
@@ -95,11 +111,21 @@ SPLEAK_EXPORT void sp_real_dealloc(void* p, std::size_t) {
 }
 
 SPLEAK_EXPORT void* malloc(std::size_t size) {
-    return malloc_op(resolved().malloc(size), size);
+    auto& d = dll_init();
+    if(d.flag.test()) {
+        return malloc_op(resolved().malloc(size), size);
+    } else {
+        return d.alloc.alloc(size, alignof(std::max_align_t));
+    }
 }
 
 SPLEAK_EXPORT void* calloc(std::size_t num, std::size_t size) {
-    return calloc_op(resolved().calloc(num, size), num, size);
+    auto& d = dll_init();
+    if(d.flag.test()) {
+        return calloc_op(resolved().calloc(num, size), num, size);
+    } else {
+        return d.alloc.alloc(size*num, alignof(std::max_align_t));
+    }
 }
 
 SPLEAK_EXPORT void* realloc(void* p, std::size_t newsize) {
@@ -107,8 +133,10 @@ SPLEAK_EXPORT void* realloc(void* p, std::size_t newsize) {
 }
 
 SPLEAK_EXPORT void free(void* p) {
-    free_op(p);
-    resolved().free(p);
+    if(!dll_init().alloc.in_range(p)) {
+        free_op(p);
+        resolved().free(p);
+    }
 }
 
 }
@@ -116,7 +144,6 @@ SPLEAK_EXPORT void free(void* p) {
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     using namespace securepath::spleak;
-    context::instance().log("hops");
     switch(reason)
     {
         case DLL_PROCESS_ATTACH:
@@ -124,6 +151,7 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
             if(!resolve_function_table()) {
                 return FALSE;
             }
+            dll_init().flag.test_and_set();
             break;
 
         case DLL_THREAD_ATTACH:
@@ -135,6 +163,9 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
             break;
 
         case DLL_PROCESS_DETACH:
+            if(scoped_internal_op _{}) {
+                context::instance().report_on_shutdown();
+            }
             if(reserved) {
                 break; // do not do cleanup if process termination scenario
             }

@@ -1,11 +1,12 @@
 
 Simple leak detector
 * detect memory leaks with malloc et al.
-* show trace to the leak source
+* show trace to the leak source (option)
 * check if memory is deallocated in different module than allocated
 * expose interface to hook in which memory belongs to smart pointer
 * analyse data to see if there are cycles in the smart pointers and report those
 * simple analysis of allocation source and allocation patterns
+  * for example combined allocations (object + shared_ptr control block), alloc+dealloc = could be move?
 * as little impact on performance as possible
 
 Technical:
@@ -13,10 +14,17 @@ Technical:
 * dll to link against on windows (provide header with lib pragmas for msvc)
 * first output in plain text only
 * hook interface:
-  * add_pointer_owner(owner_address, containee_address)
-  * remove_pointer_owner(owner_address, containee_address)
+  * add_pointer_owner(const void* owner_address, const void* containee_address);
+    * if containee is allocated using our stuff, we have the size, what if not? Try to provide the size here?
+  * remove_pointer_owner(const void* owner_address, const void* containee_address);
+  * move_pointer_owner(const void* old_owner, const void* new_owner, const void* containee_address);
 
   random notes:
   * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explictly include the CRT)
    ** try EnumProcessModules getting all modules to find the crt and load malloc?
   * alloc to add hook to try interpret memory, what it contains
+  * for loop check, have branch depth for node which can be used to optimise the search
+  * make static size allocator for dll loading/logging
+  * change logging to use above allocator
+  * consider to make option to write operations to disk and analyse it later to not affect speed too much
+    * lockless queue etc

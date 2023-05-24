@@ -55,7 +55,6 @@ SPLEAK_EXPORT void free(void* p) {
 }
 
 void __attribute__ ((constructor)) spleak_init() {
-
 }
 
 void __attribute__ ((destructor)) spleak_fini() {

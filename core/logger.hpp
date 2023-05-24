@@ -1,5 +1,6 @@
 #pragma once
 
+#include "static_allocator.hpp"
 #include "types.hpp"
 
 namespace securepath::spleak  {
@@ -9,8 +10,12 @@ class logger;
 void print(std::string_view);
 void output(logger&, std::string_view s);
 
+using log_vector = std::vector<char, static_allocator<char, static_alloc<4096>>>;
+
 class logger {
 public:
+	logger() = default;
+	logger(static_alloc<4096>& alloc) : buffer_(alloc) {}
 	virtual ~logger() = default;
 
 	template<typename... Args>
@@ -46,7 +51,7 @@ protected:
 
 protected:
 	// buffer to format messages
-	vector<char> buffer_;
+	log_vector buffer_;
 };
 
 void output(logger&, void const*);
@@ -54,6 +59,8 @@ void output(logger&, std::uint64_t);
 inline void output(logger& l, char const* p) { output(l, std::string_view(p)); }
 
 struct console_logger final : public logger {
+	using logger::logger;
+
 	void do_print() override {
 		print(std::string_view(buffer_.begin(), buffer_.end()));
 		buffer_.clear();

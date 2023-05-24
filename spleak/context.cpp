@@ -18,6 +18,18 @@ void context::remove_alloc_mem(void const* address) {
 	map_.remove(address);
 }
 
+void context::add_pointer_owner(const void* owner_address, const void* containee_address) {
+	unique_lock lock{mutex_};
+}
+
+void context::remove_pointer_owner(const void* owner_address, const void* containee_address) {
+	unique_lock lock{mutex_};
+}
+
+void context::move_pointer_owner(const void* old_owner, const void* new_owner, const void* containee_address) {
+	unique_lock lock{mutex_};
+}
+
 void context::report_on_shutdown() {
 	unique_lock lock{mutex_};
 	for(auto&& m : map_) {
