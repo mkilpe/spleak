@@ -38,7 +38,7 @@ public:
 	}
 private:
 	// use somewhat useful alignment as default
-	alignas(16) char mem_[Size]{};
+	alignas(16) char mem_[Size];
 	char* first_unused_{mem_};
 	void* last_alloc_address_{};
 };

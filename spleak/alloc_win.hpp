@@ -124,7 +124,11 @@ SPLEAK_EXPORT void* calloc(std::size_t num, std::size_t size) {
     if(d.flag.test()) {
         return calloc_op(resolved().calloc(num, size), num, size);
     } else {
-        return d.alloc.alloc(size*num, alignof(std::max_align_t));
+        auto p = d.alloc.alloc(size*num, alignof(std::max_align_t));
+        if(p) {
+            std::memset(p, 0, size*num);
+        }
+        return p;
     }
 }
 

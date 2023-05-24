@@ -22,9 +22,18 @@ Technical:
   random notes:
   * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explictly include the CRT)
    ** try EnumProcessModules getting all modules to find the crt and load malloc?
-  * alloc to add hook to try interpret memory, what it contains
-  * for loop check, have branch depth for node which can be used to optimise the search
-  * make static size allocator for dll loading/logging
-  * change logging to use above allocator
+  * allow to add hook to try interpret memory, what it contains
+  * for cycle check, have branch depth for node which can be used to optimise the search
+  * make static size allocator for dll loading/logging - change logging to use above allocator
   * consider to make option to write operations to disk and analyse it later to not affect speed too much
     * lockless queue etc
+  * have statistics mode (peak alloc size, average mem lifetime, num of allocs, distribution of alloc sizes)
+  * is it possible to get function address just before malloc/free from stack trace?
+    * get stack trace
+    * address of our malloc/free is known -> find address just before
+    * get module for which that address belongs to
+    * match if malloc and free come from the same module
+
+  todo:
+  * move the dll_init to be general
+  * refactor windows start up code
