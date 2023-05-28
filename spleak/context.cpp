@@ -18,7 +18,7 @@ void context::remove_alloc_mem(void const* address) {
 	map_.remove(address);
 }
 
-void context::add_pointer_owner(const void* owner_address, const void* containee_address) {
+void context::add_pointer_owner(const void* owner_address, const void* containee_address, std::uint32_t size) {
 	unique_lock lock{mutex_};
 }
 

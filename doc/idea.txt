@@ -14,7 +14,7 @@ Technical:
 * dll to link against on windows (provide header with lib pragmas for msvc)
 * first output in plain text only
 * hook interface:
-  * add_pointer_owner(const void* owner_address, const void* containee_address);
+  * add_pointer_owner(const void* owner_address, const void* containee_address, std::uint32_t size);
     * if containee is allocated using our stuff, we have the size, what if not? Try to provide the size here?
   * remove_pointer_owner(const void* owner_address, const void* containee_address);
   * move_pointer_owner(const void* old_owner, const void* new_owner, const void* containee_address);
@@ -31,9 +31,8 @@ Technical:
   * is it possible to get function address just before malloc/free from stack trace?
     * get stack trace
     * address of our malloc/free is known -> find address just before
-    * get module for which that address belongs to
+    * get module for which that address belongs to (GetModuleHandleEx/SYMBOL_INFO/dladdr)
     * match if malloc and free come from the same module
 
   todo:
   * move the dll_init to be general
-  * refactor windows start up code

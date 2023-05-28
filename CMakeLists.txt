@@ -24,11 +24,11 @@ find_package(Doxygen)
 include_directories(${my_root_directory})
 link_directories(${my_root_directory}/lib)
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CXX_FLAGS} -g3 -ggdb")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CXX_FLAGS} -O2")
 	set(CMAKE_CXX_FLAGS "-fPIC ${CMAKE_CXX_FLAGS} ${CXX_LOCAL_FLAGS} -Wall -Wreturn-type -Werror=return-type -fdiagnostics-color=auto -Wno-deprecated-declarations")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   # using Visual C++
   # todo
 endif()

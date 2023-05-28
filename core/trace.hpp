@@ -7,7 +7,7 @@ namespace securepath::spleak {
 
 class trace {
 public:
-	static constexpr std::size_t trace_depth = 50;
+	static constexpr std::size_t trace_depth = 1024;
 
 	trace();
 	void print_trace(logger&) const;

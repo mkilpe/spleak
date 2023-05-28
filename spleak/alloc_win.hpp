@@ -13,6 +13,9 @@
 namespace securepath::spleak {
 namespace {
 
+    //todo: first check for correct names, ie.  MSVCR71.DLL, MSVCR80.DLL, MSVCR90.DLL, MSVCR100.DLL, so on.
+    constexpr std::string_view dll_names[] = { "msvcrt.dll" };
+
     struct dll_init_data {
         std::atomic_flag flag{};
         static_alloc<4096> alloc;
@@ -52,29 +55,52 @@ namespace {
             && resolve_func(m, table.free, "free");
     }
 
+    void convert_to_lowercase(char* str, std::size_t s) {
+        for(auto* p = str; p != str+s ; ++p) {
+            if(*p >= 'A' && *p <= 'Z') {
+                *p = *p - 'A' + 'a';
+            }
+        }
+    }
+
+    bool dll_name_matches(std::string_view name) {
+        for(auto&& v : dll_names) {
+            if(name == v) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     HMODULE find_module() {
+        HMODULE ret{};
         HMODULE mods[4*1024];
         HANDLE process = GetCurrentProcess();
         DWORD mod_handle_bytes{};
-        char name[16*1024]; //what is correct size?
+        char name[32*1024];
 
-        if(EnumProcessModules(process, mods, sizeof(mods), &mod_handle_bytes)) {
-            for(std::size_t i = 0; i < (mod_handle_bytes / sizeof(HMODULE)); ++i) {
-                if(GetModuleFileNameA(mods[i], name, sizeof(name))) {
-                    std::string_view s(name, std::strlen(name));
-                    context::instance().log("-- {}", name);
-                    auto p = s.find_last_of('\\');
-                    if(p != std::string_view::npos) {
-                        if(s.substr(p+1) == "msvcrt.dll") {
-                            return mods[i];
-                        }
-                    }
+        if(!EnumProcessModules(process, mods, sizeof(mods), &mod_handle_bytes)) {
+            context::instance().log("EnumProcessModules failed (err = {})", GetLastError());
+            return nullptr;
+        }
 
-
+        for(std::size_t i = 0; i != (mod_handle_bytes / sizeof(HMODULE)) && !ret; ++i) {
+            if(auto len = GetModuleFileNameA(mods[i], name, sizeof(name))) {
+                std::string_view s(name, name+len);
+                context::instance().log("-- {}", name);
+                auto p = s.find_last_of("\\/");
+                auto* data = name;
+                if(p != std::string_view::npos) {
+                    s = s.substr(p+1);
+                    data += p+1;
+                }
+                convert_to_lowercase(data, s.size());
+                if(dll_name_matches(s)) {
+                    ret = mods[i];
                 }
             }
         }
-        return nullptr;
+        return ret;
     }
 
     bool resolve_function_table() {
@@ -82,22 +108,6 @@ namespace {
         // perhaps later on try other strategies if fails to find the module based on dll name?
         return m && resolve_functions(m, impl());
     }
-
-  /*
-GetModuleInformation
-
-FARPROC GetProcAddress(
-  [in] HMODULE hModule,
-  [in] LPCSTR  lpProcName
-);
-
-DWORD GetModuleBaseNameA(
-  [in]           HANDLE  hProcess,
-  [in, optional] HMODULE hModule,
-  [out]          LPSTR   lpBaseName,
-  [in]           DWORD   nSize
-);
-*/
 }
 
 extern "C" {
@@ -151,30 +161,23 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     switch(reason)
     {
         case DLL_PROCESS_ATTACH:
-            // Initialize once for each new process.
             if(!resolve_function_table()) {
                 return FALSE;
             }
             dll_init().flag.test_and_set();
             break;
 
-        case DLL_THREAD_ATTACH:
-            // Do thread-specific initialization.
-            break;
-
-        case DLL_THREAD_DETACH:
-            // Do thread-specific cleanup.
-            break;
-
         case DLL_PROCESS_DETACH:
             if(scoped_internal_op _{}) {
                 context::instance().report_on_shutdown();
             }
-            if(reserved) {
-                break; // do not do cleanup if process termination scenario
-            }
+            break;
+
+        case DLL_THREAD_ATTACH:
+            break;
+
+        case DLL_THREAD_DETACH:
             break;
     }
     return TRUE;
 }
-
