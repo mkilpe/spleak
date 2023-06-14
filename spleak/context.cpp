@@ -10,12 +10,12 @@ context& context::instance() {
 
 void context::add_alloc_mem(void const* address, std::uint64_t size) {
 	unique_lock lock{mutex_};
-	map_.add(address, size);
+	map_.add_alloc(address, size);
 }
 
 void context::remove_alloc_mem(void const* address) {
 	unique_lock lock{mutex_};
-	map_.remove(address);
+	map_.remove_alloc(address);
 }
 
 void context::add_pointer_owner(const void* owner_address, const void* containee_address, std::uint32_t size) {

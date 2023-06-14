@@ -6,10 +6,19 @@
 
 namespace securepath::spleak {
 
+struct owner_memory_block {
+	const void* owner;
+	const void* mem;
+	std::uint32_t size;
+};
+
 class memory_map {
 public:
-	bool add(void const* address, std::uint64_t size);
-	bool remove(void const* address);
+	bool add_alloc(void const* address, std::uint64_t size);
+	bool remove_alloc(void const* address);
+
+	bool add_owned_memory(const owner_memory_block& mem);
+	//bool remove_owned_memory(const void* )
 
 	auto begin() const {
 		return mem_.begin();

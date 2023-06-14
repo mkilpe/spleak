@@ -7,6 +7,7 @@ Simple leak detector
 * analyse data to see if there are cycles in the smart pointers and report those
 * simple analysis of allocation source and allocation patterns
   * for example combined allocations (object + shared_ptr control block), alloc+dealloc = could be move?
+* statistical analysis
 * as little impact on performance as possible
 
 Technical:
@@ -22,9 +23,7 @@ Technical:
   random notes:
   * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explictly include the CRT)
    ** try EnumProcessModules getting all modules to find the crt and load malloc?
-  * allow to add hook to try interpret memory, what it contains
-  * for cycle check, have branch depth for node which can be used to optimise the search
-  * make static size allocator for dll loading/logging - change logging to use above allocator
+  * allow to add hook to try interpret memory, what it contains for better debugging? (what is the use exactly?)
   * consider to make option to write operations to disk and analyse it later to not affect speed too much
     * lockless queue etc
   * have statistics mode (peak alloc size, average mem lifetime, num of allocs, distribution of alloc sizes)
@@ -33,6 +32,17 @@ Technical:
     * address of our malloc/free is known -> find address just before
     * get module for which that address belongs to (GetModuleHandleEx/SYMBOL_INFO/dladdr)
     * match if malloc and free come from the same module
-
+  * provide wrappers for std::shared_ptr and std::unique_ptr that calls the hook interface
   todo:
   * move the dll_init to be general
+
+cycle check:
+  * structure:
+    memory area which can be looked up [p, p+size) -> multiple owners of this area (up side down tree like structure which can have cycles)
+
+  * when adding new owner:
+    * see if the contained memory is already registered
+    * if so, try to trace back to it to see if we have cycle
+      * can we use branch depth value to stop the search if going lower than the one for registered memory?
+      * how can we optimise this?
+

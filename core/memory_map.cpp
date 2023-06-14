@@ -2,7 +2,7 @@
 
 namespace securepath::spleak {
 
-bool memory_map::add(void const* address, std::uint64_t size) {
+bool memory_map::add_alloc(void const* address, std::uint64_t size) {
 	auto it = mem_.find(address);
 	bool ret = it == mem_.end();
 	if(ret) {
@@ -11,7 +11,7 @@ bool memory_map::add(void const* address, std::uint64_t size) {
 	return ret;
 }
 
-bool memory_map::remove(void const* address) {
+bool memory_map::remove_alloc(void const* address) {
 	auto it = mem_.find(address);
 	bool ret = it != mem_.end();
 	if(ret) {
