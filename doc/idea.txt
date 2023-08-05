@@ -24,6 +24,7 @@ Technical:
   * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explictly include the CRT)
    ** try EnumProcessModules getting all modules to find the crt and load malloc?
   * allow to add hook to try interpret memory, what it contains for better debugging? (what is the use exactly?)
+    * maybe this makes sense for allocation pattern analysis?
   * consider to make option to write operations to disk and analyse it later to not affect speed too much
     * lockless queue etc
   * have statistics mode (peak alloc size, average mem lifetime, num of allocs, distribution of alloc sizes)
