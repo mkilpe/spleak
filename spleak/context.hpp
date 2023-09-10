@@ -1,6 +1,7 @@
 #pragma once
 
 #include "settings.hpp"
+#include "statistics.hpp"
 #include <core/logger.hpp>
 #include <core/static_allocator.hpp>
 
@@ -36,7 +37,7 @@ private:
 	mutable console_logger log_{alloc_};
 	settings settings_;
 	memory_map map_;
-
+	statistics stats_;
 };
 
 }

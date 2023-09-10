@@ -21,19 +21,20 @@ Technical:
   * move_pointer_owner(const void* old_owner, const void* new_owner, const void* containee_address);
 
   random notes:
-  * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explictly include the CRT)
+  * with msvc, link your malloc as a lib before the CRT (i.e. make sure to turn on ‘ignore default libs’ and explicitly include the CRT)
    ** try EnumProcessModules getting all modules to find the crt and load malloc?
   * allow to add hook to try interpret memory, what it contains for better debugging? (what is the use exactly?)
     * maybe this makes sense for allocation pattern analysis?
   * consider to make option to write operations to disk and analyse it later to not affect speed too much
     * lockless queue etc
-  * have statistics mode (peak alloc size, average mem lifetime, num of allocs, distribution of alloc sizes)
+  * have statistics mode (peak alloc size, average mem lifetime, num of allocs, distribution of alloc sizes, min/max/avg alloc time)
   * is it possible to get function address just before malloc/free from stack trace?
     * get stack trace
     * address of our malloc/free is known -> find address just before
     * get module for which that address belongs to (GetModuleHandleEx/SYMBOL_INFO/dladdr)
     * match if malloc and free come from the same module
   * provide wrappers for std::shared_ptr and std::unique_ptr that calls the hook interface
+  * use owner information to calculate total object size ?
   todo:
   * move the dll_init to be general
 

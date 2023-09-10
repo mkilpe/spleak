@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace securepath::spleak {
 
 struct settings {
@@ -14,6 +16,8 @@ struct settings {
 	bool analyse_allocation_patterns{false};
 	// Try to find memory owner cycles
 	bool analyse_memory_owner_cycles{false};
+	// Depth to analyse cycles
+	std::size_t owner_cycle_depth{8};
 };
 
 }
