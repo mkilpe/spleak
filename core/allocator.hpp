@@ -1,11 +1,13 @@
 #pragma once
 
+#include "config.hpp"
+
 #include <cstddef>
 #include <exception>
 
 extern "C" {
-void* sp_real_alloc(std::size_t);
-void sp_real_dealloc(void*, std::size_t);
+SPLEAK_EXPORT void* sp_real_alloc(std::size_t size);
+SPLEAK_EXPORT void sp_real_dealloc(void* p, std::size_t);
 }
 
 namespace securepath::spleak {

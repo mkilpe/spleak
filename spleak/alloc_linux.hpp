@@ -1,6 +1,5 @@
 
 #include "alloc.hpp"
-#include "config.hpp"
 #include "context.hpp"
 
 #include <core/logger.hpp>

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/config.hpp>
 #include <cstddef>
 
 namespace securepath::spleak {

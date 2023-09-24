@@ -55,7 +55,7 @@ struct static_allocator {
 
     template <class U>
     constexpr static_allocator(static_allocator<U, StaticAllocator> const& a) noexcept
-    : alloc_(a.alloc_)
+    : alloc_(a.allocator())
     {}
 
 	[[nodiscard]] T* allocate(std::size_t n) {
@@ -65,6 +65,10 @@ struct static_allocator {
     void deallocate(T* p, size_type s) {
     	alloc_->dealloc(p, s);
     }
+
+	StaticAllocator* allocator() const {
+		return alloc_;
+	}
 
 private:
 	StaticAllocator* alloc_{};

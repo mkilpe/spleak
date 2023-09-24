@@ -1,20 +1,18 @@
 
 #include "alloc.hpp"
-#include "config.hpp"
 #include "context.hpp"
 
 //#ifdef _MSC_VER
 
+#include <atomic>
 #include <cstring>
 
 #include <windows.h>
 #include <psapi.h>
 
+
 namespace securepath::spleak {
 namespace {
-
-    //todo: first check for correct names, ie.  MSVCR71.DLL, MSVCR80.DLL, MSVCR90.DLL, MSVCR100.DLL, so on.
-    constexpr std::string_view dll_names[] = { "msvcrt.dll" };
 
     struct dll_init_data {
         std::atomic_flag flag{};
@@ -64,15 +62,10 @@ namespace {
     }
 
     bool dll_name_matches(std::string_view name) {
-        for(auto&& v : dll_names) {
-            if(name == v) {
-                return true;
-            }
-        }
-        return false;
+        return name != "spleak.dll";    
     }
 
-    HMODULE find_module() {
+    HMODULE find_module(logger& log) {
         HMODULE ret{};
         HMODULE mods[4*1024];
         HANDLE process = GetCurrentProcess();
@@ -80,14 +73,14 @@ namespace {
         char name[32*1024];
 
         if(!EnumProcessModules(process, mods, sizeof(mods), &mod_handle_bytes)) {
-            context::instance().log("EnumProcessModules failed (err = {})", GetLastError());
+            log.log("EnumProcessModules failed (err = {})", GetLastError());
             return nullptr;
         }
 
         for(std::size_t i = 0; i != (mod_handle_bytes / sizeof(HMODULE)) && !ret; ++i) {
             if(auto len = GetModuleFileNameA(mods[i], name, sizeof(name))) {
                 std::string_view s(name, name+len);
-                context::instance().log("-- {}", name);
+                log.log("-- {}", name);
                 auto p = s.find_last_of("\\/");
                 auto* data = name;
                 if(p != std::string_view::npos) {
@@ -96,7 +89,9 @@ namespace {
                 }
                 convert_to_lowercase(data, s.size());
                 if(dll_name_matches(s)) {
-                    ret = mods[i];
+                    if(resolve_functions(mods[i], impl())) {
+                        ret = mods[i];
+                    }
                 }
             }
         }
@@ -104,9 +99,9 @@ namespace {
     }
 
     bool resolve_function_table() {
-        HMODULE m = find_module();
-        // perhaps later on try other strategies if fails to find the module based on dll name?
-        return m && resolve_functions(m, impl());
+        static_alloc<4096> alloc;
+        console_logger log{alloc};        
+        return find_module(log);
     }
 }
 
@@ -169,7 +164,9 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
 
         case DLL_PROCESS_DETACH:
             if(scoped_internal_op _{}) {
-                context::instance().report_on_shutdown();
+                if(dll_init().flag.test()) {
+                    context::instance().report_on_shutdown();
+                }
             }
             break;
 

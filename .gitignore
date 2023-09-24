@@ -2,6 +2,7 @@
 *.swp
 *.dblite
 bin
+lib
 *-workspace
 *.exe
 *.cc
@@ -25,3 +26,12 @@ Doxyfile.Doxygen
 
 .asciidoctor
 
+.vs
+
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+Win32
+
+spleak.sln
+*.dir/

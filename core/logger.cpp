@@ -27,7 +27,7 @@ void output(logger& l, std::string_view s) {
 
 void output(logger& l, void const* p) {
 	char const hex[] = "0123456789abcdef";
-	static_assert(sizeof(p) == 8);
+	static_assert(sizeof(p) <= 8);
 	char arr[18] = {};
 	std::uintptr_t n = reinterpret_cast<std::uintptr_t>(p);
 	int i = 0;
