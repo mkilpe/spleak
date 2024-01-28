@@ -11,7 +11,7 @@ struct settings {
 	// Try to resolve module handle for allocations/frees and see if those match.
 	bool resolve_module{true};
 	// Collect general statistics for memory allocations.
-	bool collect_memory_allocation_statistics{false};
+	bool collect_memory_allocation_statistics{true};
 	// Try to find memory allocation patterns.
 	bool analyse_allocation_patterns{false};
 	// Try to find memory owner cycles
