@@ -35,3 +35,4 @@ Win32
 
 spleak.sln
 *.dir/
+build

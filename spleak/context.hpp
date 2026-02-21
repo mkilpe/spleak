@@ -17,9 +17,9 @@ public:
 	void add_alloc_mem(void const* address, std::uint64_t size);
 	void remove_alloc_mem(void const* address);
 
-	void add_pointer_owner(const void* owner_address, const void* containee_address, std::uint32_t size);
-	void remove_pointer_owner(const void* owner_address, const void* containee_address);
-	void move_pointer_owner(const void* old_owner, const void* new_owner, const void* containee_address);
+	void add_pointer_owner(void const* owner_address, void const* containee_address, std::uint32_t size);
+	void remove_pointer_owner(void const* owner_address, void const* containee_address);
+	void move_pointer_owner(void const* old_owner, void const* new_owner, void const* containee_address);
 
 	void report_on_shutdown();
 

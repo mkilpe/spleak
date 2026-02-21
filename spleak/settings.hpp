@@ -15,7 +15,7 @@ struct settings {
 	// Try to find memory allocation patterns.
 	bool analyse_allocation_patterns{false};
 	// Try to find memory owner cycles
-	bool analyse_memory_owner_cycles{false};
+	bool analyse_memory_owner_cycles{true};
 	// Depth to analyse cycles
 	std::size_t owner_cycle_depth{8};
 };

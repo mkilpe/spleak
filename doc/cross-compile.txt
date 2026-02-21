@@ -3,7 +3,6 @@ Cross compiling for windows using fedora
 ----------------------------------------
 
 * install mingw cross compiling tools (dnf install mingw64-gcc-c++)
-* install dependencies (dnf install mingw64-nettle)
 * instead of 'cmake' use 'mingw64-cmake'
 * make
 

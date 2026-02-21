@@ -24,16 +24,19 @@ void context::remove_alloc_mem(void const* address) {
 	}
 }
 
-void context::add_pointer_owner(const void* owner_address, const void* containee_address, std::uint32_t size) {
+void context::add_pointer_owner(void const* owner_address, void const* containee_address, std::uint32_t size) {
 	unique_lock lock{mutex_};
+	map_.add_owned_memory(owner_memory_block{owner_address, containee_address, size});
 }
 
-void context::remove_pointer_owner(const void* owner_address, const void* containee_address) {
+void context::remove_pointer_owner(void const* owner_address, void const* containee_address) {
 	unique_lock lock{mutex_};
+	map_.remove_owned_memory(owner_address, containee_address);
 }
 
-void context::move_pointer_owner(const void* old_owner, const void* new_owner, const void* containee_address) {
+void context::move_pointer_owner(void const* old_owner, void const* new_owner, void const* containee_address) {
 	unique_lock lock{mutex_};
+	map_.move_owned_memory(old_owner, new_owner, containee_address);
 }
 
 void context::report_on_shutdown() {
@@ -41,6 +44,9 @@ void context::report_on_shutdown() {
 	for(auto&& m : map_) {
         log_.log("unreleased memory: {} size={}", m.second.address, m.second.size);
         m.second.strace.print_trace(log_);
+    }
+    if(settings_.analyse_memory_owner_cycles) {
+        map_.print_cycles(log_, settings_.owner_cycle_depth);
     }
     if(settings_.collect_memory_allocation_statistics) {
         stats_.print(log_);
